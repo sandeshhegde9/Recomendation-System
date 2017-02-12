@@ -18,6 +18,9 @@ def SVD(a):
 	idx=ab_e.argsort()[::-1]
 	ab_e=ab_e[idx]
 	u=u[:,idx]
+	for i in range(len(u)):
+		for j in range(len(u[0])):
+			u[i][j]=round(u[i][j],2)
 	#print ab_e,u,len(u),len(u[0])
 	
 	
@@ -25,33 +28,14 @@ def SVD(a):
 	ba_e,v=la.eigh(ba,eigvals=(len(ba)-500,len(ba)-1),eigvals_only=False)
 	idx=ba_e.argsort()[::-1]
 	v=v[:,idx]
+	for i in range(len(v)):
+		for j in range(len(v[0])):
+			v[i][j]=round(v[i][j],2)
+
 	#print len(v),len(v[0])
 
-	'''#get the eigen values and eigen vectors of a*a' and a'*a.
-	ab_e, u=la.eig(ab)
-	#retain only real part
-	u=u.real
-	ab_e=ab_e.real
-
-	#sort it in descending order.
-	idx=ab_e.argsort()[::-1]
-	ab_e=ab_e[idx]
-	u=u[:,idx]
-
-
-	ba_e, v=la.eig(ba)
-	#retain only real part
-	v=v.real
-	ba_e=ba_e.real
-
-	#sort in descending order.i
-	idx = ba_e.argsort()[::-1]   
-	ba_e = ba_e[idx]
-	v=v[:,idx]
-	print u,ba_e,v'''
-
 	#the matric s in svd is squre root of eigen values of a*a' or a'*a(both are equal).
-	s=[math.sqrt(i) for i in ba_e]
+	s=[round(math.sqrt(i),2) for i in ba_e]
 	
 	return u,s,v
 
@@ -84,11 +68,11 @@ def main():
 			movies[line[1]]=index1
 			index1+=1
 			a[users[line[0]]][movies[line[1]]]=float(line[2])
-	for i in a:
+	'''for i in a:
 		count=0
 		for j in i:
 			if j!=0:
-				count+=1
+				count+=1'''
 	
 	#get svd of the matrix.
 	U,S,V=SVD(a)
@@ -97,27 +81,32 @@ def main():
 	Vt=V.transpose()
 
 	#Now take a user_id and reconstruct the rating matrix using the Decomposition.
-	uid=raw_input("UID: ")
+	uid=raw_input("Enter UID: ")
 	while(uid!=0):
 		row=a[users[uid]]
+
+		#To get the movies for recomendation, we compute user_row*V*Vt.
+		#Then recomend movies with highest values.
 		j=np.dot(row,V)
 		uid_rating=np.dot(j,Vt)
-		er=0
+	
+		#Sorting the user_rating row.
+		idx=uid_rating.argsort()[::-1]
+		
+		uid_rating=uid_rating[idx]
+		movie=idx[0:20]
+
+		#Check if the user has already seen the movie, if not then recomend it.(Max 5 movies)
 		count=0
-		#print users[uid]
-		g=a[users[uid]]
+		for f in movie:
+			for key in movies:
+				if movies[key]==f:
+					if not a[users[uid]][movies[key]]>0:
+						if count<5:
+							print "Recomended MovieID: ",key
+							count+=1
 
-		#Calculating Root Mean Square Error for the user.
-		for i in range(len(g)):
-			if g[i]!=0:
-				er=er+((g[i]-uid_rating[i])**2)
-				count+=1
-
-		er=er/count
-
-		er=math.sqrt(er)
-		print er
-		uid=raw_input("UID: ")
+		uid=raw_input("\n\nEnter UID: ")
 
 main()
 
