@@ -81,12 +81,8 @@ def main():
 	Vt=V.transpose()
 
 	#Now take a user_id and reconstruct the rating matrix using the Decomposition.
-	uid='1'
-	while(uid!='0'):
-		uid=raw_input("\n\nEnter UID: ")
-		if int(uid)>943 or int(uid)<1:
-			print "Please enter valid UID"
-			continue
+	uid=raw_input("Enter UID: ")
+	while(uid!=0):
 		row=a[users[uid]]
 
 		#To get the movies for recomendation, we compute user_row*V*Vt.
@@ -110,6 +106,7 @@ def main():
 							print "Recomended MovieID: ",key
 							count+=1
 
+		uid=raw_input("\n\nEnter UID: ")
 
 main()
 
